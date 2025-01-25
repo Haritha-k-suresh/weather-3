@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Outfit Recommender</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Berlin', sans-serif;
+            background: linear-gradient(135deg, #ffb3b3, #ffcccc);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Luna', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            background: #FFB3B3;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #FF80A5;
+        }
+
+        #weather, #outfit {
+            margin-top: 20px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #ff66b2;
+            color: white;
+        }
+
+        .nav-bar img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .nav-bar h1 {
+            font-family: 'Luna', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .wardrobe-btn {
+            font-family: 'Luna', sans-serif;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .checkbox-group {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .checkbox-group label {
+            margin: 5px;
+        }
+
+        .go-back {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ff66b2;
+            margin-top: 20px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            input, button {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Landing Page -->
+<div id="landingPage" class="container">
+    <div class="nav-bar">
+        <img src="https://via.placeholder.com/40" alt="Logo" />
+        <h1>Weather Outfit Recommender</h1>
+        <a href="#" class="wardrobe-btn" id="wardrobeNav">My Wardrobe</a>
+    </div>
+
+    <h2>Enter your city and get outfit suggestions based on the weather:</h2>
+
+    <!-- City Input Section -->
+    <input type="text" id="city" placeholder="Enter your city">
+    <button id="getWeather">Get Recommendation</button>
+
+    <!-- Weather & Outfit Section -->
+    <p id="weather"></p>
+    <p id="outfit"></p>
+</div>
+
+<!-- Wardrobe Page -->
+<div id="wardrobePage" class="container" style="display: none;">
+    <h2>Select your wardrobe items:</h2>
+
+    <div class="checkbox-group">
+        <label><input type="checkbox" name="clothes" value="Shirt" /> Shirt</label>
+        <label><input type="checkbox" name="clothes" value="Top" /> Top</label>
+        <label><input type="checkbox" name="clothes" value="Crop Top" /> Crop Top</label>
+        <label><input type="checkbox" name="clothes" value="Dress" /> Dress</label>
+        <label><input type="checkbox" name="clothes" value="Kurta" /> Kurta</label>
+        <label><input type="checkbox" name="clothes" value="Pants" /> Pants</label>
+        <label><input type="checkbox" name="clothes" value="Jeans" /> Jeans</label>
+        <label><input type="checkbox" name="clothes" value="Skirt" /> Skirt</label>
+        <label><input type="checkbox" name="clothes" value="Sweatshirt" /> Sweatshirt</label>
+        <label><input type="checkbox" name="clothes" value="Sweater" /> Sweater</label>
+        <label><input type="checkbox" name="clothes" value="Jacket" /> Jacket</label>
+        <label><input type="checkbox" name="clothes" value="T-shirt" /> T-shirt</label>
+        <label><input type="checkbox" name="clothes" value="Shorts" /> Shorts</label>
+    </div>
+
+    <button id="saveWardrobe">Save Wardrobe</button>
+
+    <div class="go-back" id="goBack">← Go Back</div>
+</div>
+
+<script>
+    // API Key for OpenWeatherMap
+    const API_KEY = "13e14106a08bfb032acf195c62652881";
+
+    // Weather Fetching
+    async function getWeather(city) {
+        const url = https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY};
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    }
+
+    // Outfit Suggestions
+    const outfits = {
+        cold: "Wear a warm jacket, scarf, and gloves.",
+        warm: "T-shirt and jeans are perfect for today!",
+        hot: "Go for shorts, a tank top, and sunglasses.",
+        rainy: "Don’t forget a raincoat and waterproof boots!"
+    };
+
+    // Get Outfit Suggestion
+    function getOutfitSuggestion(temp, condition) {
+        if (temp < 10) {
+            return outfits.cold;
+        } else if (temp >= 10 && temp < 25) {
+            return outfits.warm;
+        } else if (temp >= 25) {
+            return outfits.hot;
+        } else if (condition.includes("rain")) {
+            return outfits.rainy;
+        }
+        return "Just dress comfortably!";
+    }
+
+    // Handle Landing Page Button
+    document.getElementById("getWeather").addEventListener("click", async function () {
+        const city = document.getElementById("city").value;
+
+        if (!city) {
+            document.getElementById("weather").textContent = "Please enter a valid city.";
+            return;
+        }
+
+        const weatherData = await getWeather(city);
+
+        if (weatherData.cod === 200) {
+            const temp = weatherData.main.temp;
+            const condition = weatherData.weather[0].description;
+            document.getElementById("weather").textContent = Current weather in ${city}: ${temp}°C, ${condition};
+            document.getElementById("outfit").textContent = getOutfitSuggestion(temp, condition);
+        } else {
+            document.getElementById("weather").textContent = "City not found. Please try again.";
+        }
+    });
+
+    // Wardrobe Navigation
+    document.getElementById("wardrobeNav").addEventListener("click", function () {
+        document.getElementById("landingPage").style.display = "none";
+        document.getElementById("wardrobePage").style.display = "block";
+    });
+
+    // Save Wardrobe
+    document.getElementById("saveWardrobe").addEventListener("click", function () {
+        const selectedClothes = Array.from(document.querySelectorAll('input[name="clothes"]:checked')).map(el => el.value);
+        localStorage.setItem('wardrobe', JSON.stringify({ clothes: selectedClothes }));
+        alert('Wardrobe saved!');
+    });
+
+    // Go Back to Landing Page
+    document.getElementById("goBack").addEventListener("click", function () {
+        document.getElementById("wardrobePage").style.display = "none";
+        document.getElementById("landingPage").style.display = "block";
+    });
+</script>
+
+</body>
+</html>
